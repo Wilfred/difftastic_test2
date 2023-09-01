@@ -55,7 +55,7 @@ jobs:
           # (optional) On which platform to distribute the `.zip` file.
           zip: windows
           # (optional) Target triple, default is host triple.
-          target: ${{ matrix.target }}
+          target: ${{ matrix.job.target }}
         env:
           # (required)
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
