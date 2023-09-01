@@ -55,12 +55,3 @@ jobs:
         env:
           # (required)
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  push_crates_io:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: katyo/publish-crates@v1
-        with:
-          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
