@@ -19,21 +19,34 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   upload-assets:
+    name: Build ${{ matrix.job.target }}
+    runs-on: ${{ matrix.job.os }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # Targets that match the OS of the runner.
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-20.04
+        job:
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-20.04 }
+          - { target: x86_64-apple-darwin, os: macos-latest }
+          - { target: x86_64-pc-windows-gnu, os: windows-latest }
+          - { target: x86_64-unknown-linux-musl, os: ubuntu-20.04, use-cross: true }
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-20.04, use-cross: true }
+          - { target: aarch64-apple-darwin, os: macos-latest, use-cross: true }
 
-          # Targets using cross-compilation (upload-rust-binary-action
-          # detects that they need cross).
-          - target: x86_64-unknown-linux-musl
-            os: ubuntu-20.04
-    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@1.59.0
+        with:
+          targets: ${{ matrix.job.target }}
+
+      - name: Install cross
+        if: matrix.job.use-cross
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
           bin: difft
