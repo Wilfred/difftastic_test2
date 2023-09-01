@@ -1,3 +1,6 @@
+permissions:
+  contents: write
+
 name: Release
 
 on:
@@ -27,19 +30,11 @@ jobs:
           # Targets that match the OS of the runner.
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-20.04
-          - target: x86_64-apple-darwin
-            os: macos-latest
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
 
           # Targets using cross-compilation (upload-rust-binary-action
           # detects that they need cross).
           - target: x86_64-unknown-linux-musl
             os: ubuntu-20.04
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-20.04
-          - target: aarch64-apple-darwin
-            os: macos-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
