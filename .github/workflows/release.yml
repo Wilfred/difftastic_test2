@@ -40,27 +40,34 @@ jobs:
             os: ubuntu-20.04
           - target: aarch64-apple-darwin
             os: macos-latest
+
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: taiki-e/upload-rust-binary-action@v1
-        with:
-          bin: difft
-          # (optional) On which platform to distribute the `.tar.gz` file.
-          tar: unix
-          # (optional) On which platform to distribute the `.zip` file.
-          zip: windows
-          # (optional) Target triple, default is host triple.
-          target: ${{ matrix.target }}
-        env:
-          # (required)
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  push_crates_io:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: katyo/publish-crates@v1
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@1.59.0
         with:
-          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          targets: ${{ matrix.job.target }}
 
+      - name: Install cross
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+
+      - name: Do release build
+        shell: bash
+        run: cross build --release
+
+      - name: Move binary to root of checkout
+        shell: bash
+        run: mv target/${{ matrix.job.target }}/release/difft difft
+
+      - name: Compress binary
+        shell: bash
+        run: tar -cvzf difft-${{ matrix.job.target }}.tar.gz difft
+
+      # needs target in file name
+      - name: Upload binary
+        shell: bash
+        run: gh release upload ${{ github.ref }} difft-${{ matrix.job.target }}.tar.gz
