@@ -39,10 +39,15 @@ jobs:
           # detects that they need cross).
           - target: x86_64-unknown-linux-musl
             os: ubuntu-20.04
+            use_cross: true
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-20.04
+            use_cross: true
           - target: aarch64-apple-darwin
             os: macos-latest
+            use_cross: true
+    env:
+      BUILD_CMD: cargo
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -54,15 +59,27 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Install cross
+        if: matrix.job.use-cross
         uses: taiki-e/install-action@v2
         with:
           tool: cross
 
+      - name: Overwrite build command env variable
+        if: matrix.job.use-cross
+        shell: bash
+        run: echo "BUILD_CMD=cross" >> $GITHUB_ENV
+
       - name: Do release build
         shell: bash
-        run: cross build --release --target ${{ matrix.target }}
+        run: $BUILD_CMD build --release --target ${{ matrix.target }}
 
-      - name: Move binary to root of checkout
+      - name: Move cross-compiled native binary to root of checkout
+        if: @matrix.job.use-cross
+        shell: bash
+        run: mv target/release/difft difft
+
+      - name: Move cross-compiled binary to root of checkout
+        if: matrix.job.use-cross
         shell: bash
         run: mv target/${{ matrix.target }}/release/difft difft
 
@@ -73,6 +90,6 @@ jobs:
       # needs target in file name
       - name: Upload binary
         shell: bash
-        run: gh release upload ${{ github.ref }} difft-${{ matrix.target }}.tar.gz
+        run: gh release upload ${{ github.ref_name }} difft-${{ matrix.target }}.tar.gz
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
