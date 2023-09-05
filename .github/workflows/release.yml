@@ -51,7 +51,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@1.59.0
         with:
-          targets: ${{ matrix.job.target }}
+          targets: ${{ matrix.target }}
 
       - name: Install cross
         uses: taiki-e/install-action@v2
@@ -64,13 +64,13 @@ jobs:
 
       - name: Move binary to root of checkout
         shell: bash
-        run: mv target/${{ matrix.job.target }}/release/difft difft
+        run: mv target/${{ matrix.target }}/release/difft difft
 
       - name: Compress binary
         shell: bash
-        run: tar -cvzf difft-${{ matrix.job.target }}.tar.gz difft
+        run: tar -cvzf difft-${{ matrix.target }}.tar.gz difft
 
       # needs target in file name
       - name: Upload binary
         shell: bash
-        run: gh release upload ${{ github.ref }} difft-${{ matrix.job.target }}.tar.gz
+        run: gh release upload ${{ github.ref }} difft-${{ matrix.target }}.tar.gz
