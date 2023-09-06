@@ -71,7 +71,7 @@ jobs:
 
       - name: Do release build
         shell: bash
-        run: $BUILD_CMD build --release --target ${{ matrix.target }}
+        run: CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_RUSTFLAGs='-C link-arg=-s' $BUILD_CMD build --release --target ${{ matrix.target }}
 
       - name: Move binary to root of checkout
         shell: bash
