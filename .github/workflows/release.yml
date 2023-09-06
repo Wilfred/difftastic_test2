@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.71.0
+        uses: dtolnay/rust-toolchain@1.59.0
         with:
           targets: ${{ matrix.target }}
 
@@ -75,7 +75,7 @@ jobs:
 
       - name: Do release build
         shell: bash
-        run: $BUILD_CMD build --release --target ${{ matrix.target }}
+        run: CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_RUSTFLAGS='-C relocation-model=static' $BUILD_CMD build --release --target ${{ matrix.target }}
 
       - name: Move binary to root of checkout
         shell: bash
