@@ -70,8 +70,14 @@ jobs:
         run: echo "BUILD_CMD=cross" >> $GITHUB_ENV
 
       - name: Do release build
+        if: matrix.target != x86_64-unknown-linux-musl
         shell: bash
         run: $BUILD_CMD build --release --target ${{ matrix.target }}
+
+      - name: Do release build (musl)
+        if: matrix.target == x86_64-unknown-linux-musl
+        shell: bash
+        run: RUSTFLAGS='-C link-arg=-s' $BUILD_CMD build --release --target ${{ matrix.target }}
 
       - name: Move binary to root of checkout
         shell: bash
